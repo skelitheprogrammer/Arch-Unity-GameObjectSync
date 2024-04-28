@@ -18,17 +18,7 @@ namespace Code
 
     public sealed class MockGame : IDisposable
     {
-        private readonly struct ArchInitialization
-        {
-        }
 
-        private readonly struct ArchUpdateSimulation
-        {
-        }
-
-        private readonly struct ArchSyncView
-        {
-        }
 
         private readonly World _world;
 
@@ -82,9 +72,9 @@ namespace Code
                 new SyncRotationSystem(manager),
             };
 
-            AttachToPlayerLoop();
+            //AttachToPlayerLoop();
 
-            void AttachToPlayerLoop()
+            /*void AttachToPlayerLoop()
             {
                 PlayerLoopSystem copyLoop = PlayerLoop.GetCurrentPlayerLoop();
 
@@ -146,7 +136,7 @@ namespace Code
                 copyLoop.InsertSystem(syncPlayerLoopSystem, scriptRun, PlayerLoopSystemExtensions.InsertType.AFTER);
 
                 PlayerLoop.SetPlayerLoop(copyLoop);
-            }
+            }*/
         }
 
         private static async void IterateSystems(IEnumerable<ISystem> systems, World world)

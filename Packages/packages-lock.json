@@ -21,6 +21,13 @@
       "dependencies": {},
       "hash": "69f6e31cf1482afc03685dd71d63daecbc37a565"
     },
+    "com.skillitronic.playerloopextender": {
+      "version": "https://github.com/skelitheprogrammer/PlayerLoopExtender.git",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "a3d84c438d6e7350f3954e31978302344a0e4f98"
+    },
     "com.unity.addressables": {
       "version": "1.21.20",
       "depth": 0,
