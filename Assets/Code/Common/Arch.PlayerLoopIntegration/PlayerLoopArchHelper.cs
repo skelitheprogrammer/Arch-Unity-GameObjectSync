@@ -11,25 +11,28 @@ namespace src.Tests.Morpeh
     {
         internal readonly struct ArchInitialization
         {
-            public static PlayerLoopSystem Create() => new()
+            public static PlayerLoopSystem Create(PlayerLoopSystem.UpdateFunction updateFunction) => new()
             {
-                type = typeof(ArchInitialization)
+                type = typeof(ArchInitialization),
+                updateDelegate = updateFunction
             };
         }
 
         internal readonly struct ArchUpdateSimulation
         {
-            public static PlayerLoopSystem Create() => new()
+            public static PlayerLoopSystem Create(PlayerLoopSystem.UpdateFunction updateFunction) => new()
             {
-                type = typeof(ArchUpdateSimulation)
+                type = typeof(ArchUpdateSimulation),
+                updateDelegate = updateFunction
             };
         }
 
         internal readonly struct ArchSyncView
         {
-            public static PlayerLoopSystem Create() => new()
+            public static PlayerLoopSystem Create(PlayerLoopSystem.UpdateFunction updateFunction) => new()
             {
-                type = typeof(ArchSyncView)
+                type = typeof(ArchSyncView),
+                updateDelegate = updateFunction
             };
         }
 
@@ -78,17 +81,17 @@ namespace src.Tests.Morpeh
         {
             if (!copyLoop.TryGetSystem(typeof(ArchInitialization), out _))
             {
-                copyLoop.InsertSystem(ArchInitialization.Create(), typeof(Initialization), PlayerLoopSystemExtensions.InsertType.BEFORE);
+                copyLoop.InsertSystem(ArchInitialization.Create(null), typeof(Initialization), PlayerLoopSystemExtensions.InsertType.BEFORE);
             }
 
             if (!copyLoop.TryGetSystem(typeof(ArchUpdateSimulation), out _))
             {
-                copyLoop.InsertSystem(ArchUpdateSimulation.Create(), typeof(Update.ScriptRunBehaviourUpdate), PlayerLoopSystemExtensions.InsertType.BEFORE);
+                copyLoop.InsertSystem(ArchUpdateSimulation.Create(null), typeof(Update.ScriptRunBehaviourUpdate), PlayerLoopSystemExtensions.InsertType.BEFORE);
             }
 
             if (!copyLoop.TryGetSystem(typeof(ArchSyncView), out _))
             {
-                copyLoop.InsertSystem(ArchSyncView.Create(), typeof(Update.ScriptRunBehaviourUpdate), PlayerLoopSystemExtensions.InsertType.AFTER);
+                copyLoop.InsertSystem(ArchSyncView.Create(null), typeof(Update.ScriptRunBehaviourUpdate), PlayerLoopSystemExtensions.InsertType.AFTER);
             }
         }
 

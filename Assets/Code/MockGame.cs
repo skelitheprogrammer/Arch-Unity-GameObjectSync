@@ -10,6 +10,7 @@ using PlayerLoopExtender;
 using UnityEngine;
 using UnityEngine.LowLevel;
 using UnityEngine.PlayerLoop;
+using static src.Tests.Morpeh.PlayerLoopArchHelper;
 using Object = UnityEngine.Object;
 
 namespace Code
@@ -18,8 +19,6 @@ namespace Code
 
     public sealed class MockGame : IDisposable
     {
-
-
         private readonly World _world;
 
         private bool _initialized;
@@ -72,71 +71,55 @@ namespace Code
                 new SyncRotationSystem(manager),
             };
 
-            //AttachToPlayerLoop();
+            AttachToPlayerLoop();
 
-            /*void AttachToPlayerLoop()
+            void AttachToPlayerLoop()
             {
                 PlayerLoopSystem copyLoop = PlayerLoop.GetCurrentPlayerLoop();
 
                 object locker = new();
-                PlayerLoopSystem initializationPlayerLoopSystem = new()
-                {
-                    type = typeof(ArchInitialization),
-                    updateDelegate = () =>
-                    {
-                        if (_initialized) return;
 
-                        lock (locker)
-                        {
-                            startupSystem.Execute(_world);
-                            _initialized = true;
-                        }
+                copyLoop.FindSystem(typeof(ArchInitialization)).updateDelegate = () =>
+                {
+                    if (_initialized) return;
+
+                    lock (locker)
+                    {
+                        startupSystem.Execute(_world);
+                        _initialized = true;
                     }
                 };
-
-                PlayerLoopSystem simulationPlayerLoopSystem = new()
+                
+                copyLoop.FindSystem(typeof(ArchUpdateSimulation)).updateDelegate = () =>
                 {
-                    type = typeof(ArchUpdateSimulation),
-                    updateDelegate = () =>
+                    if (!_isRunning)
                     {
-                        if (!_isRunning)
-                        {
-                            return;
-                        }
-
-                        foreach (Predicate condition in conditionalSystems.Keys)
-                        {
-                            if (condition())
-                            {
-                                IterateSystems(conditionalSystems[condition], _world);
-                            }
-                        }
-
-                        IterateSystems(simulationSystems, _world);
+                        return;
                     }
+
+                    foreach (Predicate condition in conditionalSystems.Keys)
+                    {
+                        if (condition())
+                        {
+                            IterateSystems(conditionalSystems[condition], _world);
+                        }
+                    }
+
+                    IterateSystems(simulationSystems, _world);
                 };
 
-                PlayerLoopSystem syncPlayerLoopSystem = new()
+                copyLoop.FindSystem(typeof(ArchSyncView)).updateDelegate = () =>
                 {
-                    type = typeof(ArchSyncView),
-                    updateDelegate = () =>
+                    if (!_isRunning)
                     {
-                        if (!_isRunning)
-                        {
-                            return;
-                        }
-
-                        IterateSystems(syncSystems, _world);
+                        return;
                     }
-                };
 
-                Type scriptRun = typeof(Update.ScriptRunBehaviourUpdate);
-                copyLoop.InsertSystem(initializationPlayerLoopSystem, typeof(Initialization.SynchronizeInputs), PlayerLoopSystemExtensions.InsertType.BEFORE);
-                copyLoop.InsertSystem(simulationPlayerLoopSystem, scriptRun, PlayerLoopSystemExtensions.InsertType.BEFORE);
-                copyLoop.InsertSystem(syncPlayerLoopSystem, scriptRun, PlayerLoopSystemExtensions.InsertType.AFTER);
+                    IterateSystems(syncSystems, _world);
+                };
 
                 PlayerLoop.SetPlayerLoop(copyLoop);
-            }*/
+            }
         }
 
         private static async void IterateSystems(IEnumerable<ISystem> systems, World world)
