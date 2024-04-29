@@ -50,7 +50,7 @@ namespace Code
 
             StartupSystem startupSystem = new(manager);
 
-            //this system can be cached and used somewhere else, without creating duplicates
+            //those systems could be cached and used somewhere else, without creating duplicates
             Dictionary<Predicate, ISystem[]> conditionalSystems = new()
             {
                 {() => Input.GetMouseButtonDown(0), new ISystem[] {new RemoveCubeSystem()}},
