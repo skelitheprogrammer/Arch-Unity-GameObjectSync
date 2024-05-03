@@ -5,16 +5,16 @@ namespace Code
 {
     public static class EntryPoint
     {
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        //[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         private static void Main()
         {
-            MockGame mockGame = new();
-            IDisposable disposable = mockGame;
+            CubeSphereRandomFlyContext cubeSphereRandomFlyContext = new();
+            IDisposable disposable = cubeSphereRandomFlyContext;
 
             Application.quitting -= disposable.Dispose;
             Application.quitting += disposable.Dispose;
 
-            mockGame.Start();
+            cubeSphereRandomFlyContext.Start();
         }
     }
 }

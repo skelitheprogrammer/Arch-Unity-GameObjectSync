@@ -9,22 +9,19 @@ using Code.TestSystems;
 using PlayerLoopExtender;
 using UnityEngine;
 using UnityEngine.LowLevel;
-using UnityEngine.PlayerLoop;
 using static src.Tests.Morpeh.PlayerLoopArchHelper;
 using Object = UnityEngine.Object;
 
 namespace Code
 {
-    public delegate bool Predicate();
-
-    public sealed class MockGame : IDisposable
+    public sealed class CubeSphereRandomFlyContext : IDisposable
     {
         private readonly World _world;
 
         private bool _initialized;
         private bool _isRunning;
 
-        public MockGame()
+        public CubeSphereRandomFlyContext()
         {
             _world = World.Create();
         }
