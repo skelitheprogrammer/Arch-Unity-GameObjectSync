@@ -10,13 +10,12 @@ namespace Code
         public T OldValue { get; internal set; }
 
         public T CurrentValue => _reference.Entity.Get<T>();
+        public bool IsChanged => !CurrentValue.Equals(OldValue);
 
         public Changed(EntityReference reference) : this()
         {
             _reference = reference;
         }
-
-        public bool IsChanged => !CurrentValue.Equals(OldValue);
     }
 
     public readonly struct Added<T>

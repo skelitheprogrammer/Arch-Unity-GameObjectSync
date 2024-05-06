@@ -2,8 +2,8 @@
 {
     public interface IViewPool<T>
     {
-        void PreAllocate(int size);
-        PooledView<T> Allocate();
+        void PreWarm(int size);
+        PooledView<T> Rent();
         void Return(T view);
     }
 }

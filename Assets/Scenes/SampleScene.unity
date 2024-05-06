@@ -463,14 +463,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 1430606083}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 69f6c6e741cb4964a49118bf143488a5, type: 3}
+  m_Script: {fileID: 11500000, guid: 65067ff44be34a6b80beac4a849cefb5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Reference:
-    m_AssetGUID: 80ff12795bacf8e4184813ecdcf4da66
-    m_SubObjectName: 
-    m_SubObjectType: 
-    m_EditorAssetChanged: 0
+  SpawnData:
+    MinSpeed: 3
+    MaxSpeed: 6
+  Count: 1
+  Prefab: {fileID: 5531237577234181643, guid: 80ff12795bacf8e4184813ecdcf4da66, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

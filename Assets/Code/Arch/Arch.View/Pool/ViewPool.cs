@@ -18,7 +18,7 @@ namespace Code.Arch.Arch.View
             _pool = new Queue<T>();
         }
 
-        public void PreAllocate(int size)
+        public void PreWarm(int size)
         {
             for (int i = 0; i < _incrementSize; i++)
             {
@@ -28,11 +28,11 @@ namespace Code.Arch.Arch.View
             }
         }
 
-        public PooledView<T> Allocate()
+        public PooledView<T> Rent()
         {
             if (_pool.Count == 0)
             {
-                PreAllocate(_incrementSize);
+                PreWarm(_incrementSize);
             }
 
             T result = _pool.Dequeue();
