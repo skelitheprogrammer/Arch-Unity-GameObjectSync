@@ -1,92 +1,73 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using Arch.Buffer;
 using Arch.Core;
 using Arch.Core.Extensions;
 using Arch.Core.Utils;
+using Code.Arch.Arch.View;
 using Code.System;
 using UnityEngine;
-using Object = UnityEngine.Object;
 using Random = UnityEngine.Random;
-
 
 public class ViewContextTest : MonoBehaviour
 {
-    private World _simulationWorld;
-    private World _viewWorld;
+    private World _world;
 
     public CubeSpawnData SpawnData;
     public int Count;
 
-    private CubeStartupSystem _cubeStartupSystem;
+    private IViewHandler<GameObject> _cubeViewHandler;
+
     private CubeSpawnSystem _cubeSpawnSystem;
     private CubeMoveSystem _moveSystem;
 
-    private CubeViewSpawnSystem _cubeViewSpawnSystem;
-    private CubeViewPositionSync _cubeViewPositionSync;
+    private ViewPositionSync _viewPosSync;
+    private CubeViewRotationSync _cubeViewRotSync;
 
-    private CommandBuffer _simulationBuffer;
-    private CommandBuffer _viewBuffer;
-
-    public GameObject Prefab;
-
+    private CommandBuffer _buffer;
 
     private void Awake()
     {
-        _simulationWorld = World.Create();
-        _viewWorld = World.Create();
+        _world = World.Create();
+        _buffer = new CommandBuffer();
+
+        IPool<GameObject> cubeViewPool = new GameObjectPool(
+            Instantiate,
+            instance => instance.SetActive(true),
+            instance => instance.SetActive(false),
+            SpawnData.Prefab,
+            Count);
+
+        _cubeViewHandler = new CubeViewHandler(cubeViewPool.Rent, cubeViewPool.Return);
+
+        _cubeSpawnSystem = new CubeSpawnSystem(_buffer);
+        _cubeViewRotSync = new();
         _moveSystem = new();
-        _simulationBuffer = new CommandBuffer();
-        _viewBuffer = new CommandBuffer();
+        _viewPosSync = new();
     }
 
     private void Start()
     {
-        CubeFactory cubeFactory = new();
-
-        _cubeStartupSystem = new CubeStartupSystem(Count, SpawnData, cubeFactory);
-        _cubeSpawnSystem = new CubeSpawnSystem(_simulationBuffer);
-
-        _cubeViewSpawnSystem = new CubeViewSpawnSystem(_viewBuffer);
-        _cubeViewPositionSync = new CubeViewPositionSync();
-
-        _simulationWorld.Reserve(ComponentTypes.CubeViewRequests, Count);
-
-        _cubeStartupSystem.Execute(_simulationWorld);
+        new CubeStartupSystem(Count, SpawnData, _cubeViewHandler).Execute(_world);
     }
 
     private void Update()
     {
-        _cubeSpawnSystem.Execute(_simulationWorld);
-        _cubeViewSpawnSystem.Execute(_viewWorld);
+        _viewPosSync.Execute(_world);
+        _cubeViewRotSync.Execute(_world);
 
-        _moveSystem.Execute(_simulationWorld);
+        _cubeSpawnSystem.Execute(_world);
+        _moveSystem.Execute(_world);
 
-        _cubeViewPositionSync.Execute(_viewWorld);
-
-        if (_simulationBuffer.Size > 0)
+        if (_buffer.Size > 0)
         {
-            _simulationBuffer.Playback(_simulationWorld);
-        }
-
-        if (_viewBuffer.Size > 0)
-        {
-            _viewBuffer.Playback(_viewWorld);
+            _buffer.Playback(_world);
         }
     }
 }
 
 public static class ComponentTypes
 {
-    public static readonly ComponentType[] CubeViewRequests =
-    {
-        typeof(RequestView),
-    };
-
-    public static readonly ComponentType[] ViewArchetype =
-    {
-        typeof(ViewComponent)
-    };
-
     public static readonly ComponentType[] CubeInitializerArchetype =
     {
         typeof(CubeInitializer)
@@ -96,49 +77,45 @@ public static class ComponentTypes
     {
         typeof(Position),
         typeof(Direction),
-        typeof(MoveSpeed)
+        typeof(MoveSpeed),
+        typeof(ViewReference)
     };
 }
 
-public class CubeFactory
-{
-    public Entity Create(World world, in CubeSpawnData spawnData)
-    {
-        Entity entity = world.Create(ComponentTypes.CubeInitializerArchetype);
-        entity.Set(new CubeInitializer
-        {
-            Position = Random.onUnitSphere,
-            Direction = Random.insideUnitSphere,
-            Speed = Random.Range(spawnData.MinSpeed, spawnData.MaxSpeed)
-        });
-
-        return entity;
-    }
-}
 
 public class CubeStartupSystem : ISystem
 {
     private readonly int _count;
+    private readonly IViewHandler<GameObject> _viewHandler;
     private readonly CubeSpawnData _spawnData;
-    private readonly CubeFactory _factory;
 
-    public CubeStartupSystem(int count, CubeSpawnData spawnData, CubeFactory factory)
+    public CubeStartupSystem(int count, CubeSpawnData spawnData, IViewHandler<GameObject> viewHandler)
     {
         _count = count;
         _spawnData = spawnData;
-        _factory = factory;
+        _viewHandler = viewHandler;
     }
 
     public void Execute(World world)
     {
+        world.Reserve(ComponentTypes.CubeInitializerArchetype, _count);
         world.Reserve(ComponentTypes.CubeArchetype, _count);
 
         for (int i = 0; i < _count; i++)
         {
-            _factory.Create(world, _spawnData);
+            Entity entity = world.Create(ComponentTypes.CubeInitializerArchetype);
+
+            entity.Set(new CubeInitializer
+            {
+                Position = Random.onUnitSphere,
+                Direction = Random.insideUnitSphere,
+                Speed = Random.Range(_spawnData.MinSpeed, _spawnData.MaxSpeed),
+                Instance = _viewHandler.Get()
+            });
         }
     }
 }
+
 
 public class CubeSpawnSystem : ISystem
 {
@@ -187,6 +164,11 @@ public class CubeSpawnSystem : ISystem
                 Value = cubeInitializer.Speed
             });
 
+            Buffer.Set(bufferEntity, new ViewReference
+            {
+                Value = cubeInitializer.Instance
+            });
+
             Buffer.Destroy(entity);
         }
     }
@@ -211,74 +193,53 @@ public class CubeMoveSystem : ISystem
     }
 }
 
-public class CubeViewSpawnSystem : ISystem
+public class ViewPositionSync : ISystem
 {
-    private readonly CommandBuffer _buffer;
-    private readonly QueryDescription _description = new QueryDescription().WithAll<RequestView>();
-
-    public CubeViewSpawnSystem(CommandBuffer buffer)
-    {
-        _buffer = buffer;
-    }
+    private readonly QueryDescription _description = new QueryDescription().WithAll<ViewReference>().WithAll<Position>();
 
     public void Execute(World world)
     {
-        Spawn spawn = new(_buffer);
-        world.InlineQuery(_description, ref spawn);
+        world.InlineQuery<ViewSync>(_description);
     }
 
-    private readonly struct Spawn : IForEach
+    private readonly struct ViewSync : IForEach
     {
-        private readonly CommandBuffer _buffer;
-
-        public Spawn(CommandBuffer buffer)
-        {
-            _buffer = buffer;
-        }
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Update(Entity entity)
         {
-            RequestView request = entity.Get<RequestView>();
-
-            Entity viewEntity = _buffer.Create(ComponentTypes.ViewArchetype);
-
-            _buffer.Set(viewEntity, new ViewComponent
-            {
-                Reference = request.Reference,
-                View = Object.Instantiate(request.Prefab)
-            });
-
-            _buffer.Destroy(entity);
+            ViewReference viewReference = entity.Get<ViewReference>();
+            viewReference.Value.transform.position = entity.Get<Position>().Value;
         }
     }
 }
 
-public class CubeViewPositionSync : ISystem
+public class CubeViewRotationSync : ISystem
 {
-    private readonly QueryDescription _description = new QueryDescription().WithAll<ViewComponent>();
+    private readonly QueryDescription _description = new QueryDescription().WithAll<ViewReference>().WithAll<Direction>();
 
     public void Execute(World world)
     {
-        world.InlineQuery<PositionSync>(_description);
+        world.InlineQuery<Sync>(_description);
     }
 
-    private readonly struct PositionSync : IForEach
+
+    private readonly struct Sync : IForEach
     {
         public void Update(Entity entity)
         {
-            ViewComponent viewComponent = entity.Get<ViewComponent>();
-            Position position = viewComponent.Reference.Entity.Get<Position>();
-
-            viewComponent.View.transform.position = position.Value;
+            GameObject gameObject = entity.Get<ViewReference>().Value;
+            gameObject.transform.rotation = Quaternion.FromToRotation(Vector3.up, entity.Get<Direction>().Value);
         }
     }
 }
+
 
 [Serializable]
 public class CubeSpawnData
 {
     public float MinSpeed;
     public float MaxSpeed;
+    public GameObject Prefab;
 }
 
 public struct CubeInitializer
@@ -286,6 +247,7 @@ public struct CubeInitializer
     public Vector3 Position;
     public Vector3 Direction;
     public float Speed;
+    public GameObject Instance;
 }
 
 public struct Position
@@ -303,18 +265,7 @@ public struct MoveSpeed
     public float Value;
 }
 
-public struct RequestView
+public struct ViewReference
 {
-    public EntityReference Reference;
-    public GameObject Prefab;
-}
-
-public struct HasView
-{
-}
-
-public struct ViewComponent
-{
-    public EntityReference Reference;
-    public GameObject View;
+    public GameObject Value;
 }

@@ -17,20 +17,4 @@ namespace Code
             _reference = reference;
         }
     }
-
-    public readonly struct Added<T>
-    {
-        private readonly EntityReference _reference;
-
-        public bool IsAdded => _reference.Entity.Has<T>();
-    }
-
-    public struct Removed<T>
-    {
-        private readonly EntityReference _reference;
-
-        private bool _wasAdded;
-
-        public bool IsRemoved => _wasAdded && !_reference.Entity.Has<T>();
-    }
 }
