@@ -469,9 +469,10 @@ MonoBehaviour:
   SpawnData:
     MinSpeed: 3
     MaxSpeed: 6
+    PositionOffset: 5
     Prefab: {fileID: 5531237577234181643, guid: 5a362ab169764824bb140ce8612a00c1,
       type: 3}
-  Count: 10
+  Count: 100
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

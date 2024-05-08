@@ -31,16 +31,14 @@ public class ViewContextTest : MonoBehaviour
         _world = World.Create();
         _buffer = new CommandBuffer();
 
-        IPool<GameObject> cubeViewPool = new GameObjectPool(
-            Instantiate,
-            instance => instance.SetActive(true),
-            instance => instance.SetActive(false),
+        IPool<GameObject> cubeViewPool = new GameObjectPool(Instantiate,
+            instance => instance.SetActive(true), instance => instance.SetActive(false),
             SpawnData.Prefab,
             Count);
 
         _cubeViewHandler = new CubeViewHandler(cubeViewPool.Rent, cubeViewPool.Return);
 
-        _cubeSpawnSystem = new CubeSpawnSystem(_buffer);
+        _cubeSpawnSystem = new CubeSpawnSystem(_buffer, _cubeViewHandler);
         _cubeViewRotSync = new();
         _moveSystem = new();
         _viewPosSync = new();
@@ -48,7 +46,7 @@ public class ViewContextTest : MonoBehaviour
 
     private void Start()
     {
-        new CubeStartupSystem(Count, SpawnData, _cubeViewHandler).Execute(_world);
+        new CubeStartupSystem(Count, SpawnData).Execute(_world);
     }
 
     private void Update()
@@ -70,7 +68,8 @@ public static class ComponentTypes
 {
     public static readonly ComponentType[] CubeInitializerArchetype =
     {
-        typeof(CubeInitializer)
+        typeof(CubeInitializer),
+        typeof(ViewRequested)
     };
 
     public static readonly ComponentType[] CubeArchetype =
@@ -86,14 +85,12 @@ public static class ComponentTypes
 public class CubeStartupSystem : ISystem
 {
     private readonly int _count;
-    private readonly IViewHandler<GameObject> _viewHandler;
     private readonly CubeSpawnData _spawnData;
 
-    public CubeStartupSystem(int count, CubeSpawnData spawnData, IViewHandler<GameObject> viewHandler)
+    public CubeStartupSystem(int count, CubeSpawnData spawnData)
     {
         _count = count;
         _spawnData = spawnData;
-        _viewHandler = viewHandler;
     }
 
     public void Execute(World world)
@@ -107,40 +104,42 @@ public class CubeStartupSystem : ISystem
 
             entity.Set(new CubeInitializer
             {
-                Position = Random.onUnitSphere,
+                Position = Random.onUnitSphere * _spawnData.PositionOffset,
                 Direction = Random.insideUnitSphere,
                 Speed = Random.Range(_spawnData.MinSpeed, _spawnData.MaxSpeed),
-                Instance = _viewHandler.Get()
             });
         }
     }
 }
 
-
 public class CubeSpawnSystem : ISystem
 {
     private readonly CommandBuffer _buffer;
+    private readonly IViewHandler<GameObject> _cubeViewHandler;
 
-    private readonly QueryDescription _description = new QueryDescription().WithAll<CubeInitializer>();
+    private readonly QueryDescription _description = new QueryDescription().WithAll<CubeInitializer>().WithAll<ViewRequested>();
 
-    public CubeSpawnSystem(CommandBuffer buffer)
+    public CubeSpawnSystem(CommandBuffer buffer, IViewHandler<GameObject> viewHandler)
     {
         _buffer = buffer;
+        _cubeViewHandler = viewHandler;
     }
 
     public void Execute(World world)
     {
-        Spawn spawn = new(_buffer);
+        Spawn spawn = new(_buffer, _cubeViewHandler);
         world.InlineQuery(_description, ref spawn);
     }
 
     private readonly struct Spawn : IForEach
     {
+        public readonly IViewHandler<GameObject> CubeViewHandler;
         public readonly CommandBuffer Buffer;
 
-        public Spawn(CommandBuffer buffer)
+        public Spawn(CommandBuffer buffer, IViewHandler<GameObject> getter)
         {
             Buffer = buffer;
+            CubeViewHandler = getter;
         }
 
         public void Update(Entity entity)
@@ -166,7 +165,7 @@ public class CubeSpawnSystem : ISystem
 
             Buffer.Set(bufferEntity, new ViewReference
             {
-                Value = cubeInitializer.Instance
+                Value = CubeViewHandler.Get()
             });
 
             Buffer.Destroy(entity);
@@ -239,7 +238,12 @@ public class CubeSpawnData
 {
     public float MinSpeed;
     public float MaxSpeed;
+    public float PositionOffset;
     public GameObject Prefab;
+}
+
+public struct ViewRequested
+{
 }
 
 public struct CubeInitializer
@@ -247,7 +251,6 @@ public struct CubeInitializer
     public Vector3 Position;
     public Vector3 Direction;
     public float Speed;
-    public GameObject Instance;
 }
 
 public struct Position
