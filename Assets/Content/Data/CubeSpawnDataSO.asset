@@ -9,11 +9,16 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bff99404ec2946c7b9f3d698e3f2ee10, type: 3}
-  m_Name: CubeSpawnDataSO
+  m_Script: {fileID: 11500000, guid: 63c08cf4a7054ff7bd54377d69e46e1d, type: 3}
+  m_Name: CubeSpawnDataSo
   m_EditorClassIdentifier: 
-  <Data>k__BackingField:
-    Size: 5
-    MinSpeed: 5
+  <SpawnData>k__BackingField:
+    Count: 100
+    MinSpeed: 6
     MaxSpeed: 10
-    PositionRangeOffset: 4
+    PositionOffset: 5
+    Prefab:
+      m_AssetGUID: 80ff12795bacf8e4184813ecdcf4da66
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0

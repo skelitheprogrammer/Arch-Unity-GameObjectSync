@@ -22,13 +22,13 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 291713e0e76bde140b4b5d6914285750
-    m_Address: CubeSpawnData
+  - m_GUID: 5a362ab169764824bb140ce8612a00c1
+    m_Address: Sphere
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 5a362ab169764824bb140ce8612a00c1
-    m_Address: Sphere
+  - m_GUID: 291713e0e76bde140b4b5d6914285750
+    m_Address: CubeSpawnDataSo
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
