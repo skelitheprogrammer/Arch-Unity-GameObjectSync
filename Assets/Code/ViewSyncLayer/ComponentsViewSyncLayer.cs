@@ -2,6 +2,11 @@
 
 namespace Code.ViewSyncLayer
 {
+    public struct SpawnPosition
+    {
+        public Vector3 Value;
+    }
+
     public struct Position
     {
         public Vector3 Value;

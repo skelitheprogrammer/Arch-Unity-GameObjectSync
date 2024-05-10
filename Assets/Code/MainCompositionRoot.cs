@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Arch.Buffer;
 using Arch.Core;
+using Code._Arch;
 using Code._Arch.Arch.Infrastructure;
 using Code._Arch.Arch.PlayerLoopIntegration;
 using Code._Arch.Arch.System;
@@ -11,6 +12,7 @@ using Code._Arch.Arch.View;
 using Code._Arch.Arch.View.Unity;
 using Code.AppLayer;
 using Code.CubeLayer;
+using Code.CubeLayer.Systems;
 using Code.UtilityLayer;
 using Code.ViewSyncLayer;
 using Cysharp.Threading.Tasks;
@@ -53,7 +55,7 @@ namespace Code
             }
 
             MainContext mainContext = contextHolder as MainContext;
-            
+
             CubeSpawnDataSo result = await Addressables.LoadAssetAsync<CubeSpawnDataSo>(mainContext.SpawnData).ToUniTask();
             _spawnData = result.SpawnData;
         }
@@ -71,15 +73,24 @@ namespace Code
         private async Task Compose()
         {
             _world = World.Create();
-            _buffer = new();
-            
+            _buffer = new(256);
+
             GameObject resource = await Addressables.LoadAssetAsync<GameObject>(_spawnData.Prefab).ToUniTask();
 
-            IViewPool<GameObject> viewPool = new GameObjectViewPool(Object.Instantiate,
+            IViewPool<GameObject> cubeViewPool = new GameObjectViewPool(Object.Instantiate,
                 instance => instance.SetActive(true), instance => instance.SetActive(false),
                 resource,
                 _spawnData.Count);
-            IViewHandler<GameObject> viewHandler = new GameObjectViewHandler(viewPool.Rent, viewPool.Return);
+            IViewHandler<GameObject> cubeViewHandler = new GameObjectViewHandler(cubeViewPool.Rent, cubeViewPool.Return);
+
+            IViewPool<GameObject> confettiViewPool = new GameObjectViewPool(Object.Instantiate,
+                instance => instance.SetActive(true), instance => instance.SetActive(false),
+                resource,
+                _spawnData.Count);
+            IViewHandler<GameObject> confettiViewHandler = new GameObjectViewHandler(confettiViewPool.Rent, confettiViewPool.Return);
+
+            CubeEntityFactory cubeEntityFactory = new();
+            IEntityHandler cubeEntityHandler = new CubeEntityHandler(cubeEntityFactory, _spawnData);
 
             ConfigureSystems();
             AttachPlayerLoop();
@@ -88,7 +99,7 @@ namespace Code
             {
                 _world,
                 _buffer,
-                viewPool,
+                cubeViewPool,
             };
 
             void ConfigureSystems()
@@ -101,7 +112,8 @@ namespace Code
                     {typeof(PlayerLoopArchHelper.ArchPostSimulation), new List<SystemGroup>()}
                 };
 
-                CubeLayerComposer.Setup(AddSystemGroup, _world, _buffer, _spawnData, viewHandler);
+                CubeLayerComposer.Setup(AddSystemGroup, _world, _buffer, _spawnData, cubeViewHandler, cubeEntityHandler);
+
                 ViewSyncLayerComposer.Setup(AddSystemGroup, _world);
 
                 AppLayerComposer.Setup(AddSystemGroup, _world, _buffer);

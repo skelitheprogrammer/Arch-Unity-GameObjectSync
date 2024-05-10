@@ -1,18 +1,19 @@
 ﻿using Arch.Core;
-using Arch.Core.Extensions;
+using Code._Arch;
 using Code._Arch.Arch.System;
 using Code.UtilityLayer;
-using UnityEngine;
 
 namespace Code.CubeLayer.Systems
 {
     internal sealed class CubeStartupSystem : ISystem
     {
         private readonly CubeSpawnData _spawnData;
+        private readonly IEntityHandler _entityHandler;
 
-        public CubeStartupSystem(CubeSpawnData spawnData)
+        public CubeStartupSystem(CubeSpawnData spawnData, IEntityHandler entityHandler)
         {
             _spawnData = spawnData;
+            _entityHandler = entityHandler;
         }
 
         public void Execute(World world)
@@ -22,15 +23,7 @@ namespace Code.CubeLayer.Systems
 
             for (int i = 0; i < _spawnData.Count; i++)
             {
-                Entity entity = world.Create(CubeComponentTypes.CubeInitializerArchetype);
-
-                Vector3 onUnitSphere = Random.onUnitSphere;
-                entity.Set(new CubeInitializer
-                {
-                    Position = onUnitSphere * _spawnData.PositionOffset,
-                    Direction = onUnitSphere,
-                    Speed = Random.Range(_spawnData.MinSpeed, _spawnData.MaxSpeed),
-                });
+                _entityHandler.Create(world);
             }
         }
     }

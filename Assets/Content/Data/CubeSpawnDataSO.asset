@@ -10,13 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 63c08cf4a7054ff7bd54377d69e46e1d, type: 3}
-  m_Name: CubeSpawnDataSo
+  m_Name: CubeSpawnDataSO
   m_EditorClassIdentifier: 
   <SpawnData>k__BackingField:
     Count: 100
-    MinSpeed: 6
+    MinSpeed: 3
     MaxSpeed: 10
     PositionOffset: 5
+    MinDistanceDestroy: 20
+    MaxDistanceDestroy: 30
     Prefab:
       m_AssetGUID: 80ff12795bacf8e4184813ecdcf4da66
       m_SubObjectName: 

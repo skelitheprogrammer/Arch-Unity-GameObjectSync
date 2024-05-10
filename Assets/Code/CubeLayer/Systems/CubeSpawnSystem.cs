@@ -46,7 +46,12 @@ namespace Code.CubeLayer.Systems
 
                 Buffer.Set(bufferEntity, new Position
                 {
-                    Value = cubeInitializer.Position
+                    Value = cubeInitializer.SpawnPosition
+                });
+
+                Buffer.Set(bufferEntity, new SpawnPosition
+                {
+                    Value = cubeInitializer.SpawnPosition
                 });
 
                 Buffer.Set(bufferEntity, new MoveDirection
@@ -59,11 +64,16 @@ namespace Code.CubeLayer.Systems
                     Value = cubeInitializer.Speed
                 });
 
+                Buffer.Set(bufferEntity, new DestroyDistance
+                {
+                    Value = cubeInitializer.DestroyDistance
+                });
+                
                 Buffer.Set(bufferEntity, new ViewReference
                 {
                     Value = CubeViewHandler.Get()
                 });
-
+                
                 Buffer.Destroy(entity);
             }
         }

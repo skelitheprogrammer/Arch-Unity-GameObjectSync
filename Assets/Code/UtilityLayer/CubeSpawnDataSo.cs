@@ -14,9 +14,15 @@ namespace Code.UtilityLayer
     public class CubeSpawnData
     {
         public int Count;
+
         public float MinSpeed;
         public float MaxSpeed;
+
         public float PositionOffset;
+
+        public float MinDistanceDestroy;
+        public float MaxDistanceDestroy;
+
         public AssetReference Prefab;
     }
 }

@@ -1,5 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-using Arch.Core;
+﻿using Arch.Core;
 using Arch.Core.Extensions;
 using Code._Arch.Arch.System;
 
@@ -16,7 +15,6 @@ namespace Code.ViewSyncLayer
 
         private readonly struct ViewSync : IForEach
         {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void Update(Entity entity)
             {
                 ViewReference viewReference = entity.Get<ViewReference>();
