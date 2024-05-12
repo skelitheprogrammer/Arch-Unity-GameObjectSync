@@ -1,24 +1,51 @@
 ﻿using Arch.Core;
 using Arch.Core.Extensions;
-using Code.UtilityLayer;
+using Arch.Core.Utils;
+using Code._Arch.Arch.View;
+using Code.CubeLayer.Components;
+using Code.MovableLayer;
 using UnityEngine;
 
-namespace Code.CubeLayer.Systems
+namespace Code.CubeLayer
 {
-    public sealed class CubeEntityFactory
+    public struct CubeInitializer
     {
-        public Entity Create(in World world, in CubeSpawnData spawnData)
-        {
-            Entity entity = world.Create(CubeComponentTypes.CubeInitializerArchetype);
+        public Vector3 Position;
+        public Vector3 Direction;
+        public float Speed;
+        public int ResourceId;
+    }
 
-            Vector3 onUnitSphere = Random.onUnitSphere;
-            entity.Set(new CubeInitializer
+    public class CubeEntityFactory
+    {
+        private EntityInstanceHolder _instanceHolder;
+        private IViewHandler<GameObject> _viewHandler;
+
+        public CubeEntityFactory(EntityInstanceHolder instanceHolder, IViewHandler<GameObject> viewHandler)
+        {
+            _instanceHolder = instanceHolder;
+            _viewHandler = viewHandler;
+        }
+
+        public Entity Create(World world, in CubeInitializer initializer)
+        {
+            Entity entity = world.Create(CubeArchetypes.Default);
+
+            entity.SetRange(new Position
             {
-                SpawnPosition = onUnitSphere * spawnData.PositionOffset,
-                Direction = onUnitSphere,
-                Speed = Random.Range(spawnData.MinSpeed, spawnData.MaxSpeed),
-                DestroyDistance = Random.Range(spawnData.MinDistanceDestroy, spawnData.MaxDistanceDestroy)
+                Value = initializer.Position
+            }, new MoveSpeed
+            {
+                Value = initializer.Speed
+            }, new MoveDirection
+            {
+                Value = initializer.Direction
+            }, new ViewReference
+            {
+                ResourceId = initializer.ResourceId
             });
+
+            _instanceHolder.TryRegisterEntity(entity.Id, _viewHandler);
 
             return entity;
         }

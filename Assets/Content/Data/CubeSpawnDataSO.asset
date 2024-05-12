@@ -9,18 +9,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 63c08cf4a7054ff7bd54377d69e46e1d, type: 3}
-  m_Name: CubeSpawnDataSO
+  m_Script: {fileID: 11500000, guid: c0814102f9b94579adcf9ddfacb58091, type: 3}
+  m_Name: CubeSpawnDataSo
   m_EditorClassIdentifier: 
   <SpawnData>k__BackingField:
-    Count: 100
-    MinSpeed: 3
+    Count: 5
+    MinSpeed: 5
     MaxSpeed: 10
-    PositionOffset: 5
-    MinDistanceDestroy: 20
-    MaxDistanceDestroy: 30
-    Prefab:
-      m_AssetGUID: 80ff12795bacf8e4184813ecdcf4da66
-      m_SubObjectName: 
-      m_SubObjectType: 
-      m_EditorAssetChanged: 0
+    Prefab: {fileID: 5531237577234181643, guid: 80ff12795bacf8e4184813ecdcf4da66,
+      type: 3}

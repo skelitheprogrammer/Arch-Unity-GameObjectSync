@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Code.CubeLayer
+namespace Code.CubeLayer.Components
 {
     public struct Cube
     {
@@ -15,22 +15,5 @@ namespace Code.CubeLayer
     {
         public Vector3 Value;
     }
-
-    public struct DistanceTraveled
-    {
-        public float Value;
-    }
-
-    public struct DestroyDistance
-    {
-        public float Value;
-    }
-
-    public struct CubeInitializer
-    {
-        public Vector3 SpawnPosition;
-        public Vector3 Direction;
-        public float DestroyDistance;
-        public float Speed;
-    }
+    
 }

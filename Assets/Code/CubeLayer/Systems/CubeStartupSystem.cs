@@ -1,29 +1,41 @@
 ﻿using Arch.Core;
-using Code._Arch;
 using Code._Arch.Arch.System;
-using Code.UtilityLayer;
+using Code.UtilityLayer.DataSources;
+using UnityEngine;
 
 namespace Code.CubeLayer.Systems
 {
     internal sealed class CubeStartupSystem : ISystem
     {
         private readonly CubeSpawnData _spawnData;
-        private readonly IEntityHandler _entityHandler;
+        private readonly CubeEntityFactory _factory;
+        private readonly int _resourceId;
 
-        public CubeStartupSystem(CubeSpawnData spawnData, IEntityHandler entityHandler)
+        private int Count => _spawnData.Count;
+
+        public CubeStartupSystem(CubeSpawnData spawnData, CubeEntityFactory factory, int resourceId)
         {
             _spawnData = spawnData;
-            _entityHandler = entityHandler;
+            _factory = factory;
+            _resourceId = resourceId;
         }
 
         public void Execute(World world)
         {
-            world.Reserve(CubeComponentTypes.CubeInitializerArchetype, _spawnData.Count);
-            world.Reserve(CubeComponentTypes.CubeArchetype, _spawnData.Count);
+            world.Reserve(CubeArchetypes.Default, Count);
+            //world.Reserve(CubeArchetypes.CubeSinWave, Count);
 
-            for (int i = 0; i < _spawnData.Count; i++)
+            for (int i = 0; i < Count; i++)
             {
-                _entityHandler.Create(world);
+                Vector3 onUnit = Random.onUnitSphere;
+
+                _factory.Create(world, new CubeInitializer
+                {
+                    Position = onUnit,
+                    Direction = onUnit,
+                    Speed = Random.Range(_spawnData.MinSpeed, _spawnData.MaxSpeed),
+                    ResourceId = _resourceId
+                });
             }
         }
     }

@@ -4,23 +4,17 @@ using System.Linq;
 using System.Threading.Tasks;
 using Arch.Buffer;
 using Arch.Core;
-using Code._Arch;
 using Code._Arch.Arch.Infrastructure;
 using Code._Arch.Arch.PlayerLoopIntegration;
 using Code._Arch.Arch.System;
 using Code._Arch.Arch.View;
-using Code._Arch.Arch.View.Unity;
 using Code.AppLayer;
 using Code.CubeLayer;
-using Code.CubeLayer.Systems;
-using Code.UtilityLayer;
+using Code.UtilityLayer.DataSources;
 using Code.ViewSyncLayer;
-using Cysharp.Threading.Tasks;
 using PlayerLoopExtender;
 using UnityEngine;
-using UnityEngine.AddressableAssets;
 using UnityEngine.LowLevel;
-using Object = UnityEngine.Object;
 
 namespace Code
 {
@@ -38,7 +32,6 @@ namespace Code
 
     public sealed class MainCompositionRoot : ICompositionRoot
     {
-        private CubeSpawnData _spawnData;
         private Dictionary<Type, SystemGroup[]> _map = new();
         private World _world;
         private CommandBuffer _buffer;
@@ -47,50 +40,36 @@ namespace Code
 
         private bool _initialized;
 
-        public async void Create<T>(T contextHolder)
+        public async void Init<T>(T contextHolder)
         {
             if (_initialized)
             {
                 return;
             }
 
-            MainContext mainContext = contextHolder as MainContext;
-
-            CubeSpawnDataSo result = await Addressables.LoadAssetAsync<CubeSpawnDataSo>(mainContext.SpawnData).ToUniTask();
-            _spawnData = result.SpawnData;
+            await Compose(contextHolder as MainContext);
         }
 
-        public async void Init()
-        {
-            if (_initialized)
-            {
-                return;
-            }
-
-            await Compose();
-        }
-
-        private async Task Compose()
+        private async Task Compose(MainContext contextHolder)
         {
             _world = World.Create();
             _buffer = new(256);
 
-            GameObject resource = await Addressables.LoadAssetAsync<GameObject>(_spawnData.Prefab).ToUniTask();
+            GameObjectResourcesRegistry gameObjectResourcesRegistry = new();
+            GameObjectFactory gameObjectFactory = new(gameObjectResourcesRegistry);
+            GameObjectPool cubePool = new(8
+                , gameObjectFactory.Create
+                , s => s.SetActive(true)
+                , s => s.SetActive(false));
 
-            IViewPool<GameObject> cubeViewPool = new GameObjectViewPool(Object.Instantiate,
-                instance => instance.SetActive(true), instance => instance.SetActive(false),
-                resource,
-                _spawnData.Count);
-            IViewHandler<GameObject> cubeViewHandler = new GameObjectViewHandler(cubeViewPool.Rent, cubeViewPool.Return);
+            CubeSpawnData cubeSpawnData = contextHolder.SpawnDataSo.SpawnData;
+            int registerResource = gameObjectResourcesRegistry.RegisterResource(cubeSpawnData.Prefab);
 
-            IViewPool<GameObject> confettiViewPool = new GameObjectViewPool(Object.Instantiate,
-                instance => instance.SetActive(true), instance => instance.SetActive(false),
-                resource,
-                _spawnData.Count);
-            IViewHandler<GameObject> confettiViewHandler = new GameObjectViewHandler(confettiViewPool.Rent, confettiViewPool.Return);
+            IViewHandler<GameObject> cubeViewHandler = new GameObjectViewHandler(registerResource, cubePool.Rent, cubePool.Return);
 
-            CubeEntityFactory cubeEntityFactory = new();
-            IEntityHandler cubeEntityHandler = new CubeEntityHandler(cubeEntityFactory, _spawnData);
+            EntityInstanceHolder instanceHolder = new();
+
+            CubeEntityFactory cubeEntityFactory = new(instanceHolder, cubeViewHandler);
 
             ConfigureSystems();
             AttachPlayerLoop();
@@ -99,7 +78,6 @@ namespace Code
             {
                 _world,
                 _buffer,
-                cubeViewPool,
             };
 
             void ConfigureSystems()
@@ -112,10 +90,8 @@ namespace Code
                     {typeof(PlayerLoopArchHelper.ArchPostSimulation), new List<SystemGroup>()}
                 };
 
-                CubeLayerComposer.Setup(AddSystemGroup, _world, _buffer, _spawnData, cubeViewHandler, cubeEntityHandler);
-
-                ViewSyncLayerComposer.Setup(AddSystemGroup, _world);
-
+                CubeLayerComposer.Compose(AddSystemGroup, _world, cubeSpawnData, cubeEntityFactory, registerResource);
+                ViewSyncLayerComposer.Setup(AddSystemGroup, _world, instanceHolder);
                 AppLayerComposer.Setup(AddSystemGroup, _world, _buffer);
 
                 _map = map.ToDictionary(pair => pair.Key, pair => pair.Value.ToArray());

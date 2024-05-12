@@ -1,14 +1,15 @@
 ﻿using Arch.Core;
 using Arch.Core.Extensions;
 using Code._Arch.Arch.System;
-using Code.ViewSyncLayer;
+using Code.CubeLayer.Components;
+using Code.MovableLayer;
 using UnityEngine;
 
 namespace Code.CubeLayer.Systems
 {
     public class CubeFaceDirectionSystem : ISystem
     {
-        private readonly QueryDescription _description = new QueryDescription().WithAll<Rotation>().WithAll<MoveDirection>();
+        private readonly QueryDescription _description = new QueryDescription().WithAll<Cube>().WithAll<Rotation>().WithAll<MoveDirection>();
 
         public void Execute(World world)
         {

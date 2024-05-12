@@ -1,12 +1,10 @@
 ﻿using Code._Arch.Arch.Infrastructure.Unity;
-using Code.CubeLayer;
-using Code.UtilityLayer;
-using UnityEngine.AddressableAssets;
+using Code.UtilityLayer.DataSources;
 
 namespace Code
 {
     public class MainContext : UnityContext<MainCompositionRoot>
     {
-        public AssetReferenceT<CubeSpawnDataSo> SpawnData;
+        public CubeSpawnDataSo SpawnDataSo;
     }
 }
