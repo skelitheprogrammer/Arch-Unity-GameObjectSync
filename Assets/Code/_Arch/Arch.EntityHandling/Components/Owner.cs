@@ -1,6 +1,6 @@
 ﻿using Arch.Core;
 
-namespace Code._Common
+namespace Code._Arch.Arch.EntityHandling.Components
 {
     public struct Owner
     {

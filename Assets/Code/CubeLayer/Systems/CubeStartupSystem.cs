@@ -23,7 +23,6 @@ namespace Code.CubeLayer.Systems
         public void Execute(World world)
         {
             world.Reserve(CubeArchetypes.Default, Count);
-            //world.Reserve(CubeArchetypes.CubeSinWave, Count);
 
             for (int i = 0; i < Count; i++)
             {

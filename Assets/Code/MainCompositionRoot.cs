@@ -4,10 +4,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using Arch.Buffer;
 using Arch.Core;
+using Code._Arch.Arch.EntityHandling;
 using Code._Arch.Arch.Infrastructure;
 using Code._Arch.Arch.PlayerLoopIntegration;
 using Code._Arch.Arch.System;
 using Code._Arch.Arch.View;
+using Code._Arch.Arch.View.Unity;
 using Code.AppLayer;
 using Code.CubeLayer;
 using Code.UtilityLayer.DataSources;
@@ -54,22 +56,20 @@ namespace Code
         {
             _world = World.Create();
             _buffer = new(256);
-
-            GameObjectResourcesRegistry gameObjectResourcesRegistry = new();
-            GameObjectFactory gameObjectFactory = new(gameObjectResourcesRegistry);
-            GameObjectPool cubePool = new(8
-                , gameObjectFactory.Create
-                , s => s.SetActive(true)
-                , s => s.SetActive(false));
-
             CubeSpawnData cubeSpawnData = contextHolder.SpawnDataSo.SpawnData;
-            int registerResource = gameObjectResourcesRegistry.RegisterResource(cubeSpawnData.Prefab);
 
-            IViewHandler<GameObject> cubeViewHandler = new GameObjectViewHandler(registerResource, cubePool.Rent, cubePool.Return);
+            IResourceStorage resourceStorage = new ResourceStorage();
 
-            EntityInstanceHolder instanceHolder = new();
 
-            CubeEntityFactory cubeEntityFactory = new(instanceHolder, cubeViewHandler);
+            int cubeResourceId = resourceStorage.Register(contextHolder.SpawnDataSo.SpawnData.Prefab);
+
+            IViewFactory<GameObject> cubeViewFactory = new GameObjectFactory(resourceStorage, cubeResourceId);
+            IViewPool<GameObject> cubePool = new ViewPool<GameObject>(cubeViewFactory, go => go.SetActive(true), go => go.SetActive(false), null, cubeResourceId);
+
+            IViewHandler<GameObject> cubeViewHandler = new ViewHandler<GameObject>(cubePool.Rent, cubePool.Recycle);
+            EntityInstanceHolder<GameObject> cubeInstanceHolder = new EntityInstanceHolder<GameObject>(cubeViewHandler);
+            
+            CubeEntityFactory cubeEntityFactory = new(cubeInstanceHolder);
 
             ConfigureSystems();
             AttachPlayerLoop();
@@ -90,7 +90,7 @@ namespace Code
                     {typeof(PlayerLoopArchHelper.ArchPostSimulation), new List<SystemGroup>()}
                 };
 
-                CubeLayerComposer.Compose(AddSystemGroup, _world, cubeSpawnData, cubeEntityFactory, registerResource);
+                CubeLayerComposer.Compose(AddSystemGroup, _world, cubeSpawnData, cubeEntityFactory, cubeResourceId);
                 ViewSyncLayerComposer.Setup(AddSystemGroup, _world, instanceHolder);
                 AppLayerComposer.Setup(AddSystemGroup, _world, _buffer);
 

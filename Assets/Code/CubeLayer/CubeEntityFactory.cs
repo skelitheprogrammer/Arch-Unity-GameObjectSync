@@ -1,6 +1,6 @@
 ﻿using Arch.Core;
 using Arch.Core.Extensions;
-using Arch.Core.Utils;
+using Code._Arch.Arch.EntityHandling;
 using Code._Arch.Arch.View;
 using Code.CubeLayer.Components;
 using Code.MovableLayer;
@@ -18,13 +18,11 @@ namespace Code.CubeLayer
 
     public class CubeEntityFactory
     {
-        private EntityInstanceHolder _instanceHolder;
-        private IViewHandler<GameObject> _viewHandler;
+        private EntityInstanceHolder<GameObject> _instanceHolder;
 
-        public CubeEntityFactory(EntityInstanceHolder instanceHolder, IViewHandler<GameObject> viewHandler)
+        public CubeEntityFactory(EntityInstanceHolder<GameObject> instanceHolder)
         {
             _instanceHolder = instanceHolder;
-            _viewHandler = viewHandler;
         }
 
         public Entity Create(World world, in CubeInitializer initializer)
@@ -45,7 +43,7 @@ namespace Code.CubeLayer
                 ResourceId = initializer.ResourceId
             });
 
-            _instanceHolder.TryRegisterEntity(entity.Id, _viewHandler);
+            _instanceHolder.Register(entity.Id);
 
             return entity;
         }

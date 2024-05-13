@@ -1,28 +1,39 @@
 ﻿using System.Collections.Generic;
-using UnityEngine;
 
 namespace Code._Arch.Arch.View
 {
-    public class EntityInstanceHolder
+    public class EntityInstanceHolder<T>
     {
-        private Dictionary<int, (GameObject, IViewHandler<GameObject>)> _instances = new();
+        private readonly IViewHandler<T> _viewHandler;
+        private readonly Dictionary<int, T> _entityToInstanceMap;
 
-        public void TryRegisterEntity(int entityId, IViewHandler<GameObject> handler)
+        public EntityInstanceHolder(IViewHandler<T> viewHandler)
         {
-            GameObject gameObject = handler.Get();
-            _instances.Add(entityId, (gameObject, handler));
+            _viewHandler = viewHandler;
+            _entityToInstanceMap = new Dictionary<int, T>();
         }
 
-        public void RemoveEntity(int entityId)
+        public void Register(int entityId)
         {
-            (GameObject instance, IViewHandler<GameObject> handler) = _instances[entityId];
-            handler.Remove(instance);
-            _instances.Remove(entityId);
+            if (_entityToInstanceMap.ContainsKey(entityId))
+            {
+                return;
+            }
+
+            _entityToInstanceMap.Add(entityId, _viewHandler.Get());
         }
 
-        public GameObject Get(int entityId)
+        public void Remove(int entityId)
         {
-            return _instances[entityId].Item1;
+            if (!_entityToInstanceMap.TryGetValue(entityId, out T result))
+            {
+                return;
+            }
+
+            _viewHandler.Remove(result);
+            _entityToInstanceMap.Remove(entityId);
         }
+
+        public T this[int entityId] => _entityToInstanceMap[entityId];
     }
 }

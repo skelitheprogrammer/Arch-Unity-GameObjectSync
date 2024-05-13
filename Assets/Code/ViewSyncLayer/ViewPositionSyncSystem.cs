@@ -33,7 +33,7 @@ namespace Code.ViewSyncLayer
 
             public void Update(Entity entity)
             {
-                _instanceHolder.Get(entity.Id).transform.position = entity.Get<Position>().Value;
+                _instanceHolder[entity.Id].transform.position = entity.Get<Position>().Value;
             }
         }
     }

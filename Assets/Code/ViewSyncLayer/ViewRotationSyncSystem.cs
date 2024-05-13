@@ -35,7 +35,7 @@ namespace Code.ViewSyncLayer
             public void Update(Entity entity)
             {
                 ViewReference reference = entity.Get<ViewReference>();
-                _instanceHolder.Get(entity.Id).transform.rotation = entity.Get<Rotation>().Value;
+                _instanceHolder[entity.Id].transform.rotation = entity.Get<Rotation>().Value;
             }
         }
     }
