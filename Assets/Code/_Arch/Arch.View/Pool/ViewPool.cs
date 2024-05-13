@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace Code._Arch.Arch.View
 {
@@ -14,16 +13,14 @@ namespace Code._Arch.Arch.View
 
         private readonly Queue<T> _pool;
 
-        private readonly int _resourceId;
         private readonly int _allocationSize;
 
-        public ViewPool(IViewFactory<T> factory, Action<T> onRent, Action<T> onRecycle, Action<IEnumerable<T>> onDispose, int resourceId, int allocationSize = 8)
+        public ViewPool(IViewFactory<T> factory, Action<T> onRent, Action<T> onRecycle, Action<IEnumerable<T>> onDispose, int allocationSize = 8)
         {
             _factory = factory;
             _onRent = onRent;
             _onRecycle = onRecycle;
             _onDispose = onDispose;
-            _resourceId = resourceId;
             _allocationSize = allocationSize;
             _pool = new();
         }
@@ -32,7 +29,7 @@ namespace Code._Arch.Arch.View
         {
             for (int i = 0; i < size; i++)
             {
-                T instance = _factory.Create(_resourceId);
+                T instance = _factory.Create();
                 Recycle(instance);
             }
         }

@@ -64,12 +64,12 @@ namespace Code
             int cubeResourceId = resourceStorage.Register(contextHolder.SpawnDataSo.SpawnData.Prefab);
 
             IViewFactory<GameObject> cubeViewFactory = new GameObjectFactory(resourceStorage, cubeResourceId);
-            IViewPool<GameObject> cubePool = new ViewPool<GameObject>(cubeViewFactory, go => go.SetActive(true), go => go.SetActive(false), null, cubeResourceId);
+            IViewPool<GameObject> cubePool = new ViewPool<GameObject>(cubeViewFactory, go => go.SetActive(true), go => go.SetActive(false), null);
 
             IViewHandler<GameObject> cubeViewHandler = new ViewHandler<GameObject>(cubePool.Rent, cubePool.Recycle);
-            EntityInstanceHolder<GameObject> cubeInstanceHolder = new EntityInstanceHolder<GameObject>(cubeViewHandler);
-            
-            CubeEntityFactory cubeEntityFactory = new(cubeInstanceHolder);
+            EntityInstanceHolder<GameObject> entityInstanceHolder = new EntityInstanceHolder<GameObject>();
+
+            CubeEntityFactory cubeEntityFactory = new(cubeViewHandler, entityInstanceHolder);
 
             ConfigureSystems();
             AttachPlayerLoop();
@@ -91,7 +91,7 @@ namespace Code
                 };
 
                 CubeLayerComposer.Compose(AddSystemGroup, _world, cubeSpawnData, cubeEntityFactory, cubeResourceId);
-                ViewSyncLayerComposer.Setup(AddSystemGroup, _world, instanceHolder);
+                ViewSyncLayerComposer.Setup(AddSystemGroup, _world, entityInstanceHolder);
                 AppLayerComposer.Setup(AddSystemGroup, _world, _buffer);
 
                 _map = map.ToDictionary(pair => pair.Key, pair => pair.Value.ToArray());

@@ -18,10 +18,12 @@ namespace Code.CubeLayer
 
     public class CubeEntityFactory
     {
+        private IViewHandler<GameObject> _viewHandler;
         private EntityInstanceHolder<GameObject> _instanceHolder;
 
-        public CubeEntityFactory(EntityInstanceHolder<GameObject> instanceHolder)
+        public CubeEntityFactory(IViewHandler<GameObject> viewHandler, EntityInstanceHolder<GameObject> instanceHolder)
         {
+            _viewHandler = viewHandler;
             _instanceHolder = instanceHolder;
         }
 
@@ -43,7 +45,7 @@ namespace Code.CubeLayer
                 ResourceId = initializer.ResourceId
             });
 
-            _instanceHolder.Register(entity.Id);
+            _instanceHolder.Register(entity.Id, _viewHandler);
 
             return entity;
         }

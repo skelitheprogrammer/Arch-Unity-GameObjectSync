@@ -3,15 +3,16 @@ using Arch.Core.Extensions;
 using Code._Arch.Arch.System;
 using Code._Arch.Arch.View;
 using Code.MovableLayer;
+using UnityEngine;
 
 namespace Code.ViewSyncLayer
 {
     public class ViewPositionSyncSystem : ISystem
     {
-        private readonly EntityInstanceHolder _instanceHolder;
+        private readonly EntityInstanceHolder<GameObject> _instanceHolder;
         private readonly QueryDescription _description = new QueryDescription().WithAll<ViewReference>().WithAll<Position>();
 
-        public ViewPositionSyncSystem(EntityInstanceHolder instanceHolder)
+        public ViewPositionSyncSystem(EntityInstanceHolder<GameObject> instanceHolder)
         {
             _instanceHolder = instanceHolder;
         }
@@ -24,9 +25,9 @@ namespace Code.ViewSyncLayer
 
         private readonly struct ViewSync : IForEach
         {
-            private readonly EntityInstanceHolder _instanceHolder;
+            private readonly EntityInstanceHolder<GameObject> _instanceHolder;
 
-            public ViewSync(EntityInstanceHolder instanceHolder)
+            public ViewSync(EntityInstanceHolder<GameObject> instanceHolder)
             {
                 _instanceHolder = instanceHolder;
             }

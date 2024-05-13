@@ -4,36 +4,34 @@ namespace Code._Arch.Arch.View
 {
     public class EntityInstanceHolder<T>
     {
-        private readonly IViewHandler<T> _viewHandler;
-        private readonly Dictionary<int, T> _entityToInstanceMap;
+        private readonly Dictionary<int, (T, IViewHandler<T>)> _entityToInstanceMap;
 
-        public EntityInstanceHolder(IViewHandler<T> viewHandler)
+        public EntityInstanceHolder()
         {
-            _viewHandler = viewHandler;
-            _entityToInstanceMap = new Dictionary<int, T>();
+            _entityToInstanceMap = new();
         }
 
-        public void Register(int entityId)
+        public void Register(int entityId, IViewHandler<T> viewHandler)
         {
             if (_entityToInstanceMap.ContainsKey(entityId))
             {
                 return;
             }
 
-            _entityToInstanceMap.Add(entityId, _viewHandler.Get());
+            _entityToInstanceMap.Add(entityId, (viewHandler.Get(), viewHandler));
         }
 
         public void Remove(int entityId)
         {
-            if (!_entityToInstanceMap.TryGetValue(entityId, out T result))
+            if (!_entityToInstanceMap.TryGetValue(entityId, out (T instance, IViewHandler<T> handler) result))
             {
                 return;
             }
 
-            _viewHandler.Remove(result);
+            result.handler.Remove(result.instance);
             _entityToInstanceMap.Remove(entityId);
         }
 
-        public T this[int entityId] => _entityToInstanceMap[entityId];
+        public T this[int entityId] => _entityToInstanceMap[entityId].Item1;
     }
 }

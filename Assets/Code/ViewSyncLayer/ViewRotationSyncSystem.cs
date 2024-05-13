@@ -3,14 +3,15 @@ using Arch.Core.Extensions;
 using Code._Arch.Arch.System;
 using Code._Arch.Arch.View;
 using Code.MovableLayer;
+using UnityEngine;
 
 namespace Code.ViewSyncLayer
 {
     public class ViewRotationSyncSystem : ISystem
     {
-        private EntityInstanceHolder _instanceHolder;
+        private EntityInstanceHolder<GameObject> _instanceHolder;
 
-        public ViewRotationSyncSystem(EntityInstanceHolder instanceHolder)
+        public ViewRotationSyncSystem(EntityInstanceHolder<GameObject> instanceHolder)
         {
             _instanceHolder = instanceHolder;
         }
@@ -25,9 +26,9 @@ namespace Code.ViewSyncLayer
 
         private readonly struct Sync : IForEach
         {
-            private readonly EntityInstanceHolder _instanceHolder;
+            private readonly EntityInstanceHolder<GameObject> _instanceHolder;
 
-            public Sync(EntityInstanceHolder instanceHolder)
+            public Sync(EntityInstanceHolder<GameObject> instanceHolder)
             {
                 _instanceHolder = instanceHolder;
             }
