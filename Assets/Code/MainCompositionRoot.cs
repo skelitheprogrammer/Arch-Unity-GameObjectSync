@@ -59,14 +59,10 @@ namespace Code
             CubeSpawnData cubeSpawnData = contextHolder.SpawnDataSo.SpawnData;
 
             IResourceStorage resourceStorage = new ResourceStorage();
-
-
             int cubeResourceId = resourceStorage.Register(contextHolder.SpawnDataSo.SpawnData.Prefab);
 
-            IViewFactory<GameObject> cubeViewFactory = new GameObjectFactory(resourceStorage, cubeResourceId);
-            IViewPool<GameObject> cubePool = new ViewPool<GameObject>(cubeViewFactory, go => go.SetActive(true), go => go.SetActive(false), null);
-
-            IViewHandler<GameObject> cubeViewHandler = new ViewHandler<GameObject>(cubePool.Rent, cubePool.Recycle);
+            IViewFactory<GameObject> viewFactory = new GameObjectFactory(resourceStorage);
+            IViewHandler<GameObject> cubeViewHandler = new CubePooledViewHandler(viewFactory, cubeResourceId);
             EntityInstanceHolder<GameObject> entityInstanceHolder = new EntityInstanceHolder<GameObject>();
 
             CubeEntityFactory cubeEntityFactory = new(cubeViewHandler, entityInstanceHolder);

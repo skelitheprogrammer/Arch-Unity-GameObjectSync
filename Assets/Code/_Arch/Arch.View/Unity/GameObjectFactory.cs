@@ -5,17 +5,15 @@ namespace Code._Arch.Arch.View.Unity
     public class GameObjectFactory : IViewFactory<GameObject>
     {
         private readonly IResourceStorage _storage;
-        private readonly int _resourceId;
 
-        public GameObjectFactory(IResourceStorage storage, int resourceId)
+        public GameObjectFactory(IResourceStorage storage)
         {
             _storage = storage;
-            _resourceId = resourceId;
         }
 
-        public GameObject Create()
+        public GameObject Create(int resourceId)
         {
-            GameObject resource = _storage.Get<GameObject>(_resourceId);
+            GameObject resource = _storage.Get<GameObject>(resourceId);
             return Object.Instantiate(resource);
         }
     }

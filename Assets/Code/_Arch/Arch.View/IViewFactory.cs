@@ -2,6 +2,6 @@
 {
     public interface IViewFactory<T>
     {
-        public T Create();
+        public T Create(int resourceId);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using UnityEngine;
 
 namespace Code._Arch.Arch.View
 {
@@ -21,6 +22,29 @@ namespace Code._Arch.Arch.View
         public void Remove(T view)
         {
             _remover(view);
+        }
+    }
+
+    public class CubePooledViewHandler : IViewHandler<GameObject>
+    {
+        private readonly IViewPool<GameObject> _pool;
+
+        public CubePooledViewHandler(IViewFactory<GameObject> factory, int resourceId)
+        {
+            _pool = new ViewPool<GameObject>(factory.Create, OnGet, OnReturn, null, resourceId);
+        }
+
+        GameObject IViewHandler<GameObject>.Get() => _pool.Rent();
+        void IViewHandler<GameObject>.Remove(GameObject view) => _pool.Recycle(view);
+
+        private static void OnGet(GameObject instance)
+        {
+            instance.SetActive(true);
+        }
+
+        private static void OnReturn(GameObject instance)
+        {
+            instance.SetActive(false);
         }
     }
 }
