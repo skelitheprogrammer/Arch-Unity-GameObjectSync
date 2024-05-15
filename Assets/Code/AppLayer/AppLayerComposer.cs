@@ -3,6 +3,7 @@ using Arch.Buffer;
 using Arch.Core;
 using Code._Arch.Arch.PlayerLoopIntegration;
 using Code._Arch.Arch.System;
+using Code.CubeLayer.Systems;
 
 namespace Code.AppLayer
 {
@@ -12,6 +13,7 @@ namespace Code.AppLayer
         {
             addSystems(typeof(PlayerLoopArchHelper.ArchPostSimulation), new ISystem[]
             {
+                new DestroyEntitySystem(buffer),
                 new ExecuteCommandBufferSystem(buffer),
             }, simulationWorld);
         }

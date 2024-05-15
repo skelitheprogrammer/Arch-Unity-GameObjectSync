@@ -22,13 +22,29 @@ namespace Code.CubeLayer
             typeof(Position),
             typeof(MoveDirection),
             typeof(MoveSpeed),
-            
+
             typeof(Rotation),
 
             typeof(HasView)
         };
 
-        public static readonly ComponentType[] CubeSinWave =
+        public static readonly ComponentType[] CubeWithDistanceDestroy =
+        {
+            typeof(Cube),
+
+            typeof(Position),
+            typeof(MoveDirection),
+            typeof(MoveSpeed),
+
+            typeof(Rotation),
+
+            typeof(DestroyDistance),
+            typeof(DistanceTraveled),
+            
+            typeof(HasView)
+        };
+
+        public static readonly ComponentType[] CubeSineWave =
         {
             typeof(Cube),
 

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Arch.Buffer;
 using Arch.Core;
 using Code._Arch.Arch.Infrastructure;
@@ -10,7 +9,7 @@ using Code._Arch.Arch.System;
 using Code._Arch.Arch.View;
 using Code.AppLayer;
 using Code.CubeLayer;
-using Code.UtilityLayer.DataSources;
+using Code.UtilityLayer;
 using Code.ViewSyncLayer;
 using PlayerLoopExtender;
 using UnityEngine;
@@ -36,37 +35,30 @@ namespace Code
         private World _world;
         private CommandBuffer _buffer;
 
-        private CubeDataConfig _config;
-
         private IDisposable[] _subscribers;
 
         private bool _initialized;
 
-        public async Task Create<T>(T contextHolder)
+        public void Create<T>(T contextHolder)
         {
-            if (contextHolder is MainContext context)
-            {
-                _config = context._dataConfigSo.DataConfig;
-            }
+            _world = World.Create();
+            _buffer = new(256);
         }
 
-        public void Init()
+        public void Init<T>(T contextHolder)
         {
             if (_initialized)
             {
                 return;
             }
 
-            Compose();
+            Compose(contextHolder as MainContext);
         }
 
-        private void Compose()
+        private void Compose(MainContext contextHolder)
         {
-            _world = World.Create();
-            _buffer = new(256);
-
             ResourceStorage<GameObject> resourceStorage = new ResourceStorage<GameObject>();
-            IViewHandler<GameObject> cubeViewHandler = new CubeViewHandler(_config.Prefab, _config.Count);
+            IViewHandler<GameObject> cubeViewHandler = new CubeViewHandler(contextHolder.DataConfigSo.DefaultConfig.Prefab, 16);
             int cubeResourceId = resourceStorage.Add(cubeViewHandler);
             EntityInstanceStorage<GameObject> gameObjectInstanceStorage = new EntityInstanceStorage<GameObject>(resourceStorage);
 
@@ -91,7 +83,7 @@ namespace Code
                     {typeof(PlayerLoopArchHelper.ArchPostSimulation), new List<SystemGroup>()}
                 };
 
-                CubeLayerComposer.Compose(AddSystemGroup, _world, _config, cubeEntityFactory);
+                CubeLayerComposer.Compose(AddSystemGroup, _world, contextHolder.DataConfigSo.DefaultConfig, cubeEntityFactory);
                 ViewSyncLayerComposer.Setup(AddSystemGroup, _world, gameObjectInstanceStorage);
                 AppLayerComposer.Setup(AddSystemGroup, _world, _buffer);
 

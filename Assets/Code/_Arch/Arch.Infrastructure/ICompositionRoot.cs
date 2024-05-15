@@ -5,7 +5,7 @@ namespace Code._Arch.Arch.Infrastructure
 {
     public interface ICompositionRoot : IDisposable
     {
-        Task Create<T>(T contextHolder);
-        void Init();
+        void Create<T>(T contextHolder);
+        void Init<T>(T contextHolder);
     }
 }

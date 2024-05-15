@@ -5,7 +5,7 @@ namespace Code.UtilityLayer.DataSources
     [CreateAssetMenu(menuName = "Create CubeSpawnDataSo", fileName = "CubeSpawnDataSo", order = 0)]
     public class CubeDataConfigSo : ScriptableObject
     {
-        [field: SerializeField] public CubeDataConfig DataConfig { get; private set; }
+        [field: SerializeField] public CubeDataConfig DefaultConfig { get; private set; }
     }
 
     [System.Serializable]
@@ -16,6 +16,17 @@ namespace Code.UtilityLayer.DataSources
         public float MinSpeed;
         public float MaxSpeed;
 
+        public CubeWithDestroyDistanceConfig CubeWithDestroyDistanceConfig;
+
         public GameObject Prefab;
+    }
+
+    [System.Serializable]
+    public class CubeWithDestroyDistanceConfig
+    {
+        public int Count;
+
+        public float MinDestroyDistance;
+        public float MaxDestroyDistance;
     }
 }

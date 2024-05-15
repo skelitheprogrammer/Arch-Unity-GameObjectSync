@@ -18,6 +18,11 @@ namespace Code._Arch.Arch.View
             return count;
         }
 
+        public void Remove(int resourceId, T instance)
+        {
+            _map[resourceId].RemoveInstance(instance);
+        }
+
         public T this[int id] => _map[id].GetInstance();
     }
 }

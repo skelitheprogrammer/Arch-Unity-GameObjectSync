@@ -1,4 +1,4 @@
-﻿namespace Code._Arch.Arch.View
+﻿namespace Code._Arch.Arch.View.Pool
 {
     public interface IViewPool<T>
     {

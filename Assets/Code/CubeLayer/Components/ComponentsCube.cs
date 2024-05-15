@@ -15,5 +15,16 @@ namespace Code.CubeLayer.Components
     {
         public Vector3 Value;
     }
-    
+
+    public struct DistanceTraveled
+    {
+        public Vector3 StartPosition;
+
+        public float Distance;
+    }
+
+    public struct DestroyDistance
+    {
+        public float Value;
+    }
 }

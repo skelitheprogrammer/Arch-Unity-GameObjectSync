@@ -34,7 +34,7 @@ namespace Code._Arch.Arch.Infrastructure.Unity
         private IEnumerator WaitForFrameworkInitialization()
         {
             yield return new WaitForEndOfFrame();
-            _root.Init();
+            _root.Init(this);
         }
     }
 }

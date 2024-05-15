@@ -12,6 +12,13 @@ namespace Code.CubeLayer
         public Vector3 Position;
         public Vector3 Direction;
         public float Speed;
+        public int ResourceId;
+    }
+
+    public struct CubeDestroyDistanceInitializer
+    {
+        public Vector3 StartPosition;
+        public float DestroyDistance;
     }
 
     public class CubeEntityFactory
@@ -25,7 +32,7 @@ namespace Code.CubeLayer
             _instanceStorage = instanceStorage;
         }
 
-        public void Create(World world, in CubeInitializer initializer)
+        public Entity Create(World world, in CubeInitializer initializer)
         {
             Entity entity = world.Create(CubeArchetypes.Default);
 
@@ -38,9 +45,42 @@ namespace Code.CubeLayer
             }, new MoveSpeed
             {
                 Value = initializer.Speed
+            }, new HasView
+            {
+                ResourceId = _resourceId
             });
 
             _instanceStorage.Add(entity.Id, _resourceId);
+
+            return entity;
+        }
+
+        public Entity Create(World world, in CubeInitializer cubeInitializer, in CubeDestroyDistanceInitializer destroyDistanceInitializer)
+        {
+            Entity entity = world.Create(CubeArchetypes.CubeWithDistanceDestroy);
+
+            Debug.Log(entity.Id);
+
+            entity.SetRange(new Position
+            {
+                Value = cubeInitializer.Position
+            }, new MoveDirection
+            {
+                Value = cubeInitializer.Direction
+            }, new MoveSpeed
+            {
+                Value = cubeInitializer.Speed
+            }, new DestroyDistance
+            {
+                Value = destroyDistanceInitializer.DestroyDistance
+            }, new DistanceTraveled
+            {
+                StartPosition = destroyDistanceInitializer.StartPosition
+            });
+
+            _instanceStorage.Add(entity.Id, _resourceId);
+
+            return entity;
         }
     }
 }

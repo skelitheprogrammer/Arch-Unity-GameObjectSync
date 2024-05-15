@@ -1,8 +1,8 @@
 ﻿using System;
-using Code._Arch.Arch.View;
+using Code._Arch.Arch.View.Pool;
 using UnityEngine;
 
-namespace Code.CubeLayer
+namespace Code.UtilityLayer
 {
     public class CubeViewPool : ViewPool<GameObject>
     {

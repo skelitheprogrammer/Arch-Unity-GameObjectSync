@@ -5,6 +5,6 @@ namespace Code
 {
     public class MainContext : UnityContext<MainCompositionRoot>
     {
-        public CubeDataConfigSo _dataConfigSo;
+        public CubeDataConfigSo DataConfigSo;
     }
 }

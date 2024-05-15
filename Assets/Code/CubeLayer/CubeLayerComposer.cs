@@ -19,8 +19,9 @@ namespace Code.CubeLayer
             addSystems(typeof(PlayerLoopArchHelper.ArchUpdateSimulation), new ISystem[]
             {
                 new CubeFaceDirectionSystem(),
-                new CubeSineWaveDirectionUpdateSystem(),
                 new CubeMoveSystem(),
+                new CalculateDistanceTraveledSystem(),
+                new DestroyOnDistanceTraveled()
             }, world);
         }
     }

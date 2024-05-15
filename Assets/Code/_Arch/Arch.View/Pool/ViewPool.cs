@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Code._Arch.Arch.View
+namespace Code._Arch.Arch.View.Pool
 {
     public abstract class ViewPool<T> : IViewPool<T>
     {

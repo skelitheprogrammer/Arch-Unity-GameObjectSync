@@ -1,7 +1,8 @@
 ﻿using System;
+using Code._Arch.Arch.View.Pool;
 using UnityEngine;
 
-namespace Code._Arch.Arch.View
+namespace Code._Arch.Arch.View.Unity
 {
     public class GameObjectPool : ViewPool<GameObject>
     {

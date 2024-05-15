@@ -19,6 +19,11 @@ namespace Code._Arch.Arch.View
             _map.Add(entityId, instance);
         }
 
+        public void Remove(int entityId, int resourceId)
+        {
+            _resourceStorage.Remove(resourceId, _map[entityId]);
+        }
+
         public T this[int entityId] => _map[entityId];
     }
 }
