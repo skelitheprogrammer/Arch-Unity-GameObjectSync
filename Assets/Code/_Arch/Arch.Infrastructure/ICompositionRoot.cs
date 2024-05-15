@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace Code._Arch.Arch.Infrastructure
 {
     public interface ICompositionRoot : IDisposable
     {
-        void Init<T>(T contextHolder);
+        Task Create<T>(T contextHolder);
+        void Init();
     }
 }

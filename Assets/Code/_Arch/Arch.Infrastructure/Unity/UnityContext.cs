@@ -14,6 +14,8 @@ namespace Code._Arch.Arch.Infrastructure.Unity
         private void Awake()
         {
             _root = new T();
+
+            _root.Create(this);
         }
 
         private void Start()
@@ -32,7 +34,7 @@ namespace Code._Arch.Arch.Infrastructure.Unity
         private IEnumerator WaitForFrameworkInitialization()
         {
             yield return new WaitForEndOfFrame();
-            _root.Init(this);
+            _root.Init();
         }
     }
 }

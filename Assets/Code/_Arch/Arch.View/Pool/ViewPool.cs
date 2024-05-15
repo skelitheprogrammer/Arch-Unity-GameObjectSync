@@ -7,7 +7,7 @@ namespace Code._Arch.Arch.View
     {
         private readonly Func<T, T> _factory;
         private readonly T _resource;
-        protected virtual int AllocationSize { get; }
+        private readonly int _allocationSize;
 
         private readonly Queue<T> _pool;
 
@@ -15,7 +15,7 @@ namespace Code._Arch.Arch.View
         {
             _factory = factory;
             _resource = resource;
-            AllocationSize = allocationSize;
+            _allocationSize = allocationSize;
             _pool = new();
         }
 
@@ -32,7 +32,7 @@ namespace Code._Arch.Arch.View
         {
             if (_pool.Count == 0)
             {
-                Allocate(AllocationSize);
+                Allocate(_allocationSize);
             }
 
             T instance = _pool.Dequeue();

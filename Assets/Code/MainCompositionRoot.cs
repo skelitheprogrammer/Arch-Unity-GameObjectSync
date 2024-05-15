@@ -15,7 +15,6 @@ using Code.ViewSyncLayer;
 using PlayerLoopExtender;
 using UnityEngine;
 using UnityEngine.LowLevel;
-using Object = UnityEngine.Object;
 
 namespace Code
 {
@@ -37,28 +36,38 @@ namespace Code
         private World _world;
         private CommandBuffer _buffer;
 
+        private CubeDataConfig _config;
+
         private IDisposable[] _subscribers;
 
         private bool _initialized;
 
-        public async void Init<T>(T contextHolder)
+        public async Task Create<T>(T contextHolder)
+        {
+            if (contextHolder is MainContext context)
+            {
+                _config = context._dataConfigSo.DataConfig;
+            }
+        }
+
+        public void Init()
         {
             if (_initialized)
             {
                 return;
             }
 
-            await Compose(contextHolder as MainContext);
+            Compose();
         }
 
-        private async Task Compose(MainContext contextHolder)
+        private void Compose()
         {
             _world = World.Create();
             _buffer = new(256);
-            CubeDataConfig cubeDataConfig = contextHolder._dataConfigSo.DataConfig;
 
             ResourceStorage<GameObject> resourceStorage = new ResourceStorage<GameObject>();
-            int cubeResourceId = resourceStorage.Add(new CubeViewHandler(cubeDataConfig.Prefab, cubeDataConfig.Count));
+            IViewHandler<GameObject> cubeViewHandler = new CubeViewHandler(_config.Prefab, _config.Count);
+            int cubeResourceId = resourceStorage.Add(cubeViewHandler);
             EntityInstanceStorage<GameObject> gameObjectInstanceStorage = new EntityInstanceStorage<GameObject>(resourceStorage);
 
             CubeEntityFactory cubeEntityFactory = new(cubeResourceId, gameObjectInstanceStorage);
@@ -82,7 +91,7 @@ namespace Code
                     {typeof(PlayerLoopArchHelper.ArchPostSimulation), new List<SystemGroup>()}
                 };
 
-                CubeLayerComposer.Compose(AddSystemGroup, _world, cubeDataConfig, cubeEntityFactory);
+                CubeLayerComposer.Compose(AddSystemGroup, _world, _config, cubeEntityFactory);
                 ViewSyncLayerComposer.Setup(AddSystemGroup, _world, gameObjectInstanceStorage);
                 AppLayerComposer.Setup(AddSystemGroup, _world, _buffer);
 

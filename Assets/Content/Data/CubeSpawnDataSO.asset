@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: CubeSpawnDataSo
   m_EditorClassIdentifier: 
   <DataConfig>k__BackingField:
-    Count: 10
-    MinSpeed: 3
-    MaxSpeed: 6
+    Count: 100
+    MinSpeed: 1
+    MaxSpeed: 7
     Prefab: {fileID: 5531237577234181643, guid: 80ff12795bacf8e4184813ecdcf4da66,
       type: 3}

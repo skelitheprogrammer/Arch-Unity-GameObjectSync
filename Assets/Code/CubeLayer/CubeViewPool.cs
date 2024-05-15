@@ -18,7 +18,5 @@ namespace Code.CubeLayer
         {
             view.SetActive(false);
         }
-
-
     }
 }

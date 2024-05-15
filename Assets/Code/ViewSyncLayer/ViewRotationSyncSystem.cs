@@ -9,7 +9,7 @@ namespace Code.ViewSyncLayer
 {
     public class ViewRotationSyncSystem : ISystem
     {
-        private EntityInstanceStorage<GameObject> _instanceHolder;
+        private readonly EntityInstanceStorage<GameObject> _instanceHolder;
 
         public ViewRotationSyncSystem(EntityInstanceStorage<GameObject> instanceHolder)
         {
@@ -35,7 +35,6 @@ namespace Code.ViewSyncLayer
 
             public void Update(Entity entity)
             {
-                HasView reference = entity.Get<HasView>();
                 _instanceHolder[entity.Id].transform.rotation = entity.Get<Rotation>().Value;
             }
         }
