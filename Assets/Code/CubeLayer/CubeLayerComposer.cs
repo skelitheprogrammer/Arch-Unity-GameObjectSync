@@ -9,11 +9,11 @@ namespace Code.CubeLayer
 {
     public static class CubeLayerComposer
     {
-        public static void Compose(Action<Type, ISystem[], World> addSystems, World world, CubeSpawnData spawnData, CubeEntityFactory factory, int resourceId)
+        public static void Compose(Action<Type, ISystem[], World> addSystems, World world, CubeDataConfig dataConfig, CubeEntityFactory factory)
         {
             addSystems(typeof(PlayerLoopArchHelper.ArchInitialization), new ISystem[]
             {
-                new CubeStartupSystem(spawnData, factory, resourceId)
+                new CubeStartupSystem(dataConfig, factory)
             }, world);
 
             addSystems(typeof(PlayerLoopArchHelper.ArchUpdateSimulation), new ISystem[]

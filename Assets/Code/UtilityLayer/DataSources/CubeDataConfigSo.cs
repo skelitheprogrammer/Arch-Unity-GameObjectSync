@@ -3,13 +3,13 @@
 namespace Code.UtilityLayer.DataSources
 {
     [CreateAssetMenu(menuName = "Create CubeSpawnDataSo", fileName = "CubeSpawnDataSo", order = 0)]
-    public class CubeSpawnDataSo : ScriptableObject
+    public class CubeDataConfigSo : ScriptableObject
     {
-        [field: SerializeField] public CubeSpawnData SpawnData { get; private set; }
+        [field: SerializeField] public CubeDataConfig DataConfig { get; private set; }
     }
 
     [System.Serializable]
-    public class CubeSpawnData
+    public class CubeDataConfig
     {
         public int Count;
 

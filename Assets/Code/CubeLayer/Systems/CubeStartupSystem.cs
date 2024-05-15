@@ -7,18 +7,17 @@ namespace Code.CubeLayer.Systems
 {
     internal sealed class CubeStartupSystem : ISystem
     {
-        private readonly CubeSpawnData _spawnData;
+        private readonly CubeDataConfig _dataConfig;
         private readonly CubeEntityFactory _factory;
-        private readonly int _resourceId;
 
-        private int Count => _spawnData.Count;
+        private int Count => _dataConfig.Count;
 
-        public CubeStartupSystem(CubeSpawnData spawnData, CubeEntityFactory factory, int resourceId)
+        public CubeStartupSystem(CubeDataConfig dataConfig, CubeEntityFactory factory)
         {
-            _spawnData = spawnData;
+            _dataConfig = dataConfig;
             _factory = factory;
-            _resourceId = resourceId;
         }
+
 
         public void Execute(World world)
         {
@@ -27,13 +26,11 @@ namespace Code.CubeLayer.Systems
             for (int i = 0; i < Count; i++)
             {
                 Vector3 onUnit = Random.onUnitSphere;
-
                 _factory.Create(world, new CubeInitializer
                 {
                     Position = onUnit,
                     Direction = onUnit,
-                    Speed = Random.Range(_spawnData.MinSpeed, _spawnData.MaxSpeed),
-                    ResourceId = _resourceId
+                    Speed = Random.Range(_dataConfig.MinSpeed, _dataConfig.MaxSpeed)
                 });
             }
         }

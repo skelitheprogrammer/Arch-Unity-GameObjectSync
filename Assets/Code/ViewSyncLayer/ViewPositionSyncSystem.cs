@@ -9,10 +9,10 @@ namespace Code.ViewSyncLayer
 {
     public class ViewPositionSyncSystem : ISystem
     {
-        private readonly EntityInstanceHolder<GameObject> _instanceHolder;
-        private readonly QueryDescription _description = new QueryDescription().WithAll<ViewReference>().WithAll<Position>();
+        private readonly EntityInstanceStorage<GameObject> _instanceHolder;
+        private readonly QueryDescription _description = new QueryDescription().WithAll<HasView>().WithAll<Position>();
 
-        public ViewPositionSyncSystem(EntityInstanceHolder<GameObject> instanceHolder)
+        public ViewPositionSyncSystem(EntityInstanceStorage<GameObject> instanceHolder)
         {
             _instanceHolder = instanceHolder;
         }
@@ -25,9 +25,9 @@ namespace Code.ViewSyncLayer
 
         private readonly struct ViewSync : IForEach
         {
-            private readonly EntityInstanceHolder<GameObject> _instanceHolder;
+            private readonly EntityInstanceStorage<GameObject> _instanceHolder;
 
-            public ViewSync(EntityInstanceHolder<GameObject> instanceHolder)
+            public ViewSync(EntityInstanceStorage<GameObject> instanceHolder)
             {
                 _instanceHolder = instanceHolder;
             }

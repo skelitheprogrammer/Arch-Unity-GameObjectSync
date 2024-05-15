@@ -9,14 +9,14 @@ namespace Code.ViewSyncLayer
 {
     public class ViewRotationSyncSystem : ISystem
     {
-        private EntityInstanceHolder<GameObject> _instanceHolder;
+        private EntityInstanceStorage<GameObject> _instanceHolder;
 
-        public ViewRotationSyncSystem(EntityInstanceHolder<GameObject> instanceHolder)
+        public ViewRotationSyncSystem(EntityInstanceStorage<GameObject> instanceHolder)
         {
             _instanceHolder = instanceHolder;
         }
 
-        private readonly QueryDescription _description = new QueryDescription().WithAll<ViewReference>().WithAll<Rotation>();
+        private readonly QueryDescription _description = new QueryDescription().WithAll<HasView>().WithAll<Rotation>();
 
         public void Execute(World world)
         {
@@ -26,16 +26,16 @@ namespace Code.ViewSyncLayer
 
         private readonly struct Sync : IForEach
         {
-            private readonly EntityInstanceHolder<GameObject> _instanceHolder;
+            private readonly EntityInstanceStorage<GameObject> _instanceHolder;
 
-            public Sync(EntityInstanceHolder<GameObject> instanceHolder)
+            public Sync(EntityInstanceStorage<GameObject> instanceHolder)
             {
                 _instanceHolder = instanceHolder;
             }
 
             public void Update(Entity entity)
             {
-                ViewReference reference = entity.Get<ViewReference>();
+                HasView reference = entity.Get<HasView>();
                 _instanceHolder[entity.Id].transform.rotation = entity.Get<Rotation>().Value;
             }
         }

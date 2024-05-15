@@ -1,36 +1,46 @@
 ﻿using System.Collections.Generic;
+using Arch.Core;
+using Arch.Core.Extensions;
 
 namespace Code._Arch.Arch.View
 {
-    public class ResourceStorage : IResourceStorage
+    public class ResourceStorage<T>
     {
-        private readonly Dictionary<int, object> _map;
-        private int Count => _map.Count;
+        private readonly SortedList<int, IViewHandler<T>> _map;
 
         public ResourceStorage()
         {
             _map = new();
         }
 
-        public int Register<T>(T resource)
+        public int Add(in IViewHandler<T> handler)
         {
-            int id = Count;
-            _map.Add(id, resource);
-
-            return id;
+            int count = _map.Count;
+            _map.Add(count, handler);
+            return count;
         }
 
-        public void Remove(int resourceId)
+        public T this[int id] => _map[id].GetInstance();
+    }
+
+
+    public class EntityInstanceStorage<T>
+    {
+        private readonly ResourceStorage<T> _resourceStorage;
+        private readonly SortedList<int, T> _map;
+
+        public EntityInstanceStorage(ResourceStorage<T> resourceStorage)
         {
-            _map.Remove(resourceId);
+            _resourceStorage = resourceStorage;
+            _map = new();
         }
 
-        public T Get<T>(int resourceId) => _map[resourceId] is T
-            ? (T) _map[resourceId]
-            : default;
-
-        public void Dispose()
+        public void Add(int entityId, int resourceId)
         {
+            T instance = _resourceStorage[resourceId];
+            _map.Add(entityId, instance);
         }
+
+        public T this[int entityId] => _map[entityId];
     }
 }

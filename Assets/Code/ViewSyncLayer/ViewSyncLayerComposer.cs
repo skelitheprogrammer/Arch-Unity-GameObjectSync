@@ -9,7 +9,7 @@ namespace Code.ViewSyncLayer
 {
     public static class ViewSyncLayerComposer
     {
-        public static void Setup(Action<Type, ISystem[], World> addSystems, World world, EntityInstanceHolder<GameObject> holder)
+        public static void Setup(Action<Type, ISystem[], World> addSystems, World world, EntityInstanceStorage<GameObject> holder)
         {
             addSystems(typeof(PlayerLoopArchHelper.ArchSyncView), new ISystem[]
             {

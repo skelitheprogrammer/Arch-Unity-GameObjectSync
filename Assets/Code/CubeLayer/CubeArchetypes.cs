@@ -1,5 +1,4 @@
 ﻿using Arch.Core.Utils;
-using Code._Arch.Arch.EntityHandling;
 using Code._Arch.Arch.EntityHandling.Components;
 using Code._Arch.Arch.View;
 using Code.CubeLayer.Components;
@@ -21,11 +20,12 @@ namespace Code.CubeLayer
             typeof(Cube),
 
             typeof(Position),
-            typeof(Rotation),
             typeof(MoveDirection),
             typeof(MoveSpeed),
+            
+            typeof(Rotation),
 
-            typeof(ViewReference)
+            typeof(HasView)
         };
 
         public static readonly ComponentType[] CubeSinWave =
@@ -39,7 +39,7 @@ namespace Code.CubeLayer
             typeof(SineWave),
             typeof(MoveSpeed),
 
-            typeof(ViewReference)
+            typeof(HasView)
         };
     }
 }

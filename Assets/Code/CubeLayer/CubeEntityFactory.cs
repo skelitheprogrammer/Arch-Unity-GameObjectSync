@@ -1,6 +1,5 @@
 ﻿using Arch.Core;
 using Arch.Core.Extensions;
-using Code._Arch.Arch.EntityHandling;
 using Code._Arch.Arch.View;
 using Code.CubeLayer.Components;
 using Code.MovableLayer;
@@ -13,41 +12,35 @@ namespace Code.CubeLayer
         public Vector3 Position;
         public Vector3 Direction;
         public float Speed;
-        public int ResourceId;
     }
 
     public class CubeEntityFactory
     {
-        private IViewHandler<GameObject> _viewHandler;
-        private EntityInstanceHolder<GameObject> _instanceHolder;
+        private readonly int _resourceId;
+        private readonly EntityInstanceStorage<GameObject> _instanceStorage;
 
-        public CubeEntityFactory(IViewHandler<GameObject> viewHandler, EntityInstanceHolder<GameObject> instanceHolder)
+        public CubeEntityFactory(int resourceId, EntityInstanceStorage<GameObject> instanceStorage)
         {
-            _viewHandler = viewHandler;
-            _instanceHolder = instanceHolder;
+            _resourceId = resourceId;
+            _instanceStorage = instanceStorage;
         }
 
-        public Entity Create(World world, in CubeInitializer initializer)
+        public void Create(World world, in CubeInitializer initializer)
         {
             Entity entity = world.Create(CubeArchetypes.Default);
 
             entity.SetRange(new Position
             {
                 Value = initializer.Position
-            }, new MoveSpeed
-            {
-                Value = initializer.Speed
             }, new MoveDirection
             {
                 Value = initializer.Direction
-            }, new ViewReference
+            }, new MoveSpeed
             {
-                ResourceId = initializer.ResourceId
+                Value = initializer.Speed
             });
 
-            _instanceHolder.Register(entity.Id, _viewHandler);
-
-            return entity;
+            _instanceStorage.Add(entity.Id, _resourceId);
         }
     }
 }
